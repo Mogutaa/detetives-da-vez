@@ -1,5 +1,6 @@
 import os
 import json
+import random
 from openai import OpenAI
 from dotenv import load_dotenv
 import re
@@ -30,11 +31,30 @@ def extrair_json(texto):
         return None
 
 def gerar_caso(modo="normal", nomes_jogadores=[]):
+    temas = [
+        "navio transatlântico", "hotel abandonado", "estação espacial", 
+        "carnaval de rua", "feira renascentista", "ilha tropical", 
+        "universidade secreta", "zoológico noturno", "submarino de pesquisa",
+        "fábrica de brinquedos", "mosteiro tibetano", "circo itinerante",
+        "bolsa de valores", "conferência de tecnologia", "reserva indígena",
+        "navio pirata", "cidade subterrânea", "castelo medieval",
+        "laboratório de genética", "safári africano", "templo antigo"
+    ]
+    tema_aleatorio = random.choice(temas)
+    
     prompt = f"""
     ## Instruções
     Crie um caso de mistério completo seguindo EXATAMENTE o formato JSON abaixo.
     NÃO inclua nenhum texto adicional além do JSON.
-
+    O cenário deve ser em: {tema_aleatorio}
+    
+    ## Requisitos de Diversidade:
+    - Cenário: {tema_aleatorio} (NÃO use mansão ou orquídea)
+    - Título criativo e único que reflita o cenário
+    - Personagens diversos com profissões variadas
+    - Pistas relacionadas ao contexto específico
+    - Motivações originais não relacionadas a heranças
+    
     ## Formato JSON Exigido:
     {{
       "titulo": "Título do Caso",
@@ -65,17 +85,6 @@ def gerar_caso(modo="normal", nomes_jogadores=[]):
         "Evento 2"
       ]
     }}
-
-    ## Requisitos:
-    - Título criativo
-    - Introdução envolvente com cenário do crime
-    - 4 a 6 personagens (atribua 'culpado': true para apenas um)
-    - 3 a 5 locais com descrições
-    - 5 a 7 pistas (algumas com 'verdadeira': false)
-    - Linha do tempo com 3 a 5 eventos
-    
-    Modo: {modo}
-    {f"Nomes dos jogadores como personagens: {', '.join(nomes_jogadores)}" if nomes_jogadores else ""}
     """
     
     for tentativa in range(3):
@@ -84,7 +93,7 @@ def gerar_caso(modo="normal", nomes_jogadores=[]):
                 model=MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},
-                temperature=0.7
+                temperature=1.2  # Aumentamos a temperatura para mais criatividade
             )
             
             conteudo = response.choices[0].message.content
@@ -105,26 +114,32 @@ def gerar_caso(modo="normal", nomes_jogadores=[]):
     
     # Fallback se todas as tentativas falharem
     return {
-        "titulo": "O Caso do JSON Desaparecido",
-        "introducao": "Algo deu errado ao gerar o caso. O JSON fugiu!",
+        "titulo": f"O Mistério do {tema_aleatorio.capitalize()}",
+        "introducao": f"Um crime chocante ocorreu em um {tema_aleatorio}. As pistas estão espalhadas, mas o assassino ainda está solto.",
         "personagens": [
             {
-                "nome": "Detetive Falhou",
-                "descricao": "Especialista em casos perdidos",
-                "motivacao": "Encontrar o JSON perdido",
+                "nome": "Detetive Principal",
+                "descricao": "Especialista em casos complexos",
+                "motivacao": "Resolver o caso a qualquer custo",
+                "culpado": False
+            },
+            {
+                "nome": "Suspeito Misterioso",
+                "descricao": "Comportamento suspeito e sem álibi",
+                "motivacao": "Esconde um segredo perigoso",
                 "culpado": True
             }
         ],
         "locais": [
-            {"nome": "Servidor 404", "descricao": "Lugar onde JSONs se perdem"}
+            {"nome": "Cena do Crime", "descricao": f"Local principal do incidente no {tema_aleatorio}"}
         ],
         "pistas": [
-            {"descricao": "Fragmentos de código", "local": "Servidor 404", "verdadeira": True}
+            {"descricao": "Objeto deixado para trás", "local": "Cena do Crime", "verdadeira": True}
         ],
         "linha_tempo": [
-            "JSON solicitado",
-            "JSON desapareceu",
-            "Caso criado manualmente"
+            "Evento inicial",
+            "Ocorrência do crime",
+            "Descoberta do corpo"
         ]
     }
 

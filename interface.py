@@ -58,6 +58,7 @@ def aplicar_estilos():
     
     .stTabs [data-baseweb="tab"] {
         background: var(--card-bg);
+        color: var(--text);
         border-radius: 8px;
         padding: 10px 20px;
         margin: 0 2px;
@@ -232,11 +233,11 @@ def mostrar_caso(caso):
             with cols[i % 2]:
                 emoji = "👤"
                 if personagem.get('culpado', False):
-                    emoji = "🔪"
+                    emoji = "👤"
                 elif "governant" in personagem['descricao'].lower():
-                    emoji = "🧹"
+                    emoji = "👤"
                 elif "jardineir" in personagem['descricao'].lower():
-                    emoji = "🌿"
+                    emoji = "👤"
                     
                 if st.button(f"{emoji} {personagem['nome']}", key=f"char_{personagem['nome']}", use_container_width=True):
                     st.session_state.suspeito_atual = personagem
@@ -323,23 +324,38 @@ def mostrar_caso(caso):
                 if st.button("✅ Confirmar Acusação", key="fazer_acusacao", type="primary", use_container_width=True):
                     if acusacao:
                         with st.spinner("Avaliando acusação..."):
-                            st.session_state.resultado_acusacao = avaliar_teoria(acusacao, caso)
+                            try:
+                                st.session_state.resultado_acusacao = avaliar_teoria(acusacao, caso)
+                            except Exception as e:
+                                st.error(f"Erro ao avaliar acusação: {str(e)}")
+                                st.session_state.resultado_acusacao = None
                     else:
                         st.error("Por favor, digite o nome do suspeito.")
             with col2:
                 if st.button("❌ Cancelar", key="cancelar_acusacao", use_container_width=True):
-                    st.session_state.resultado_acusacao = None
+                    if "resultado_acusacao" in st.session_state:
+                        del st.session_state.resultado_acusacao
             
+            # Verificação segura do resultado
             if "resultado_acusacao" in st.session_state:
-                st.divider()
-                if "CORRETO" in st.session_state.resultado_acusacao:
-                    st.success("🎉 Acusação Correta!")
-                    st.session_state.fim_jogo = True
-                else:
-                    st.error("❌ Acusação Incorreta!")
-                st.write(st.session_state.resultado_acusacao)
+                resultado = st.session_state.resultado_acusacao
                 
-                if "CORRETO" in st.session_state.resultado_acusacao:
-                    st.balloons()
+                if resultado is None:
+                    st.warning("A avaliação não retornou resultado")
+                
+                elif isinstance(resultado, str):
+                    st.divider()
+                    
+                    if "CORRETO" in resultado.upper():
+                        st.success("🎉 Acusação Correta!")
+                        st.session_state.fim_jogo = True
+                        st.balloons()
+                    else:
+                        st.error("❌ Acusação Incorreta!")
+                    
+                    st.write(resultado)
+                
+                else:
+                    st.warning(f"Tipo inesperado de resultado: {type(resultado)}")
         st.markdown("</div>", unsafe_allow_html=True)
         
