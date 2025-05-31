@@ -32,13 +32,7 @@ def extrair_json(texto):
 
 def gerar_caso(modo="normal", nomes_jogadores=[]):
     temas = [
-        "navio transatlântico", "hotel abandonado", "estação espacial", 
-        "carnaval de rua", "feira renascentista", "ilha tropical", 
-        "universidade secreta", "zoológico noturno", "submarino de pesquisa",
-        "fábrica de brinquedos", "mosteiro tibetano", "circo itinerante",
-        "bolsa de valores", "conferência de tecnologia", "reserva indígena",
-        "navio pirata", "cidade subterrânea", "castelo medieval",
-        "laboratório de genética", "safári africano", "templo antigo"
+        "Quatro amigos em uma casa de praia, um morre", "Hotel de luxo", "Colégio João Paulo"
     ]
     tema_aleatorio = random.choice(temas)
     
