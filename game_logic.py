@@ -17,7 +17,7 @@ client = OpenAI(
         "X-Title": "Detetives da Vez"
     }
 )
-MODEL = "deepseek/deepseek-r1-0528-qwen3-8b:free"
+MODEL = "google/gemma-3-27b-it:free"
 
 def extrair_json(texto):
     """Tenta extrair um bloco JSON de uma string"""
