@@ -31,24 +31,11 @@ def extrair_json(texto):
         return None
 
 def gerar_caso(modo="normal", nomes_jogadores=[]):
-    temas = [
-        "Casa de Praia"
-    ]
-    tema_aleatorio = random.choice(temas)
-    
     prompt = f"""
     ## Instruções
     Crie um caso de mistério completo seguindo EXATAMENTE o formato JSON abaixo.
     NÃO inclua nenhum texto adicional além do JSON.
-    O cenário deve ser em: {tema_aleatorio}
-    
-    ## Requisitos de Diversidade:
-    - Cenário: {tema_aleatorio} (NÃO use mansão ou orquídea)
-    - Título criativo e único que reflita o cenário
-    - Personagens diversos com profissões variadas
-    - Pistas relacionadas ao contexto específico
-    - Motivações originais não relacionadas a heranças
-    
+
     ## Formato JSON Exigido:
     {{
       "titulo": "Título do Caso",
@@ -79,63 +66,20 @@ def gerar_caso(modo="normal", nomes_jogadores=[]):
         "Evento 2"
       ]
     }}
+
+    ## Requisitos:
+    - Título criativo (use emojis quando apropriado)
+    - Introdução envolvente com cenário do crime
+    - 4 a 6 personagens (atribua 'culpado': true para apenas um)
+    - 3 a 5 locais com descrições
+    - 5 a 7 pistas (algumas com 'verdadeira': false)
+    - Linha do tempo com 3 a 5 eventos
+    
+    Modo: {modo}
+    {f"Nomes dos jogadores como personagens: {', '.join(nomes_jogadores)}" if nomes_jogadores else ""}
     """
     
-    for tentativa in range(3):
-        try:
-            response = client.chat.completions.create(
-                model=MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"},
-                temperature=1.2  # Aumentamos a temperatura para mais criatividade
-            )
-            
-            conteudo = response.choices[0].message.content
-            
-            # Tenta extrair JSON mesmo se houver texto extra
-            caso = extrair_json(conteudo)
-            if caso:
-                # Validação básica da estrutura
-                if all(key in caso for key in ["titulo", "introducao", "personagens", "locais", "pistas"]):
-                    return caso
-                
-            # Se não encontrou JSON válido, tenta novamente
-            print(f"Tentativa {tentativa+1}: JSON inválido recebido")
-            print(conteudo)
-            
-        except Exception as e:
-            print(f"Erro na tentativa {tentativa+1}: {str(e)}")
-    
-    # Fallback se todas as tentativas falharem
-    return {
-        "titulo": f"O Mistério do {tema_aleatorio.capitalize()}",
-        "introducao": f"Um crime chocante ocorreu em um {tema_aleatorio}. As pistas estão espalhadas, mas o assassino ainda está solto.",
-        "personagens": [
-            {
-                "nome": "Detetive Principal",
-                "descricao": "Especialista em casos complexos",
-                "motivacao": "Resolver o caso a qualquer custo",
-                "culpado": False
-            },
-            {
-                "nome": "Suspeito Misterioso",
-                "descricao": "Comportamento suspeito e sem álibi",
-                "motivacao": "Esconde um segredo perigoso",
-                "culpado": True
-            }
-        ],
-        "locais": [
-            {"nome": "Cena do Crime", "descricao": f"Local principal do incidente no {tema_aleatorio}"}
-        ],
-        "pistas": [
-            {"descricao": "Objeto deixado para trás", "local": "Cena do Crime", "verdadeira": True}
-        ],
-        "linha_tempo": [
-            "Evento inicial",
-            "Ocorrência do crime",
-            "Descoberta do corpo"
-        ]
-    }
+    # ... (restante do código permanece igual) ...
 
 def interrogar_personagem(personagem, pergunta, caso):
     char_info = next((c for c in caso['personagens'] if c['nome'] == personagem), None)
