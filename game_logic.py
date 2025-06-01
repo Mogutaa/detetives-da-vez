@@ -32,7 +32,7 @@ def extrair_json(texto):
 
 def gerar_caso(modo="normal", nomes_jogadores=[]):
     temas = [
-        "Quatro amigos em uma casa de praia, um morre", "Hotel de luxo", "Colégio João Paulo"
+        "Quatro amigos em uma casa de praia, um morre","Colégio João Paulo"
     ]
     tema_aleatorio = random.choice(temas)
     
